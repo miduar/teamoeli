@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DevAnder.Front-End</title>
+    <!-- Fuente estilo pixel -->
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        /* Estilos generales */
+        
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
+            overflow: hidden;
+            font-family: 'Press Start 2P', Arial, sans-serif;
+        }
+        /* Estrellas fondo */
+        
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            opacity: 0.7;
+            pointer-events: none;
+            z-index: 0;
+        }
+        /* Estilos para las palabras que caen (efecto lluvia) */
+        
+        .falling {
+            position: absolute;
+            top: -50px;
+            color: #fff;
+            font-size: 24px;
+            white-space: nowrap;
+            font-family: 'Press Start 2P', Arial, sans-serif;
+            pointer-events: none;
+            animation: fall 5s linear forwards, wiggle 2s ease-in-out infinite;
+            filter: drop-shadow(0 0 2px #fff);
+            z-index: 2;
+            user-select: none;
+        }
+        
+        .emoji {
+            font-family: Arial, 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif !important;
+            font-size: 32px;
+            filter: drop-shadow(0 0 6px #fff);
+        }
+        /* Animación de caída con rotación y escala */
+        
+        @keyframes fall {
+            0% {
+                top: -50px;
+                opacity: 0;
+                transform: rotate(-10deg) scale(1);
+            }
+            10% {
+                opacity: 1;
+                transform: rotate(5deg) scale(1.1);
+            }
+            50% {
+                transform: rotate(-5deg) scale(1.05);
+            }
+            100% {
+                top: 100vh;
+                opacity: 1;
+                transform: rotate(10deg) scale(1);
+            }
+        }
+        /* Oscilación lateral usando translateX */
+        
+        @keyframes wiggle {
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+            20% {
+                transform: translateX(-10px);
+            }
+            40% {
+                transform: translateX(10px);
+            }
+            60% {
+                transform: translateX(-10px);
+            }
+            80% {
+                transform: translateX(10px);
+            }
+        }
+        /* Estilos para el mensaje fijo "TE AMO" */
+        
+        .static {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #FFA500;
+            font-size: 48px;
+            font-weight: bold;
+            text-align: center;
+            text-shadow: 0 0 10px #FFA500;
+            font-family: 'Press Start 2P', Arial, sans-serif;
+            letter-spacing: 4px;
+            z-index: 10;
+            pointer-events: none;
+        }
+    </style>
+</head>
+
+<body>
+    <audio id="musica-fondo" src="mucha.mp3" loop autoplay muted></audio>
+
+    <script>
+        const musica = document.getElementById('musica-fondo');
+
+        // Apenas el usuario mueva el mouse o toque la pantalla → desmutear y reproducir
+        function activarMusica() {
+            musica.muted = false;
+            musica.play();
+            document.removeEventListener('mousemove', activarMusica);
+            document.removeEventListener('touchstart', activarMusica);
+        }
+
+        document.addEventListener('mousemove', activarMusica);
+        document.addEventListener('touchstart', activarMusica);
+    </script>
+
+    <script>
+        // Palabras y emojis para la lluvia
+        const palabras = [
+            "GUAPA", "PRECIOSA", "PERFECTA", "LINDA", "BONITA", "HERMOSA", "BELLA", "MI SOL", "MI ESTRELLA", "TE QUIERO", "TE ADORO", "TE EXTRAÑO", "TE AMO", "TE AMO MUCHO", "TE AMO MÁS QUE A NADIE", "ERES MI VIDA", "ERES MI TODO", "ERES MI MUNDO", "ERES MI SUERTE", "ERES MI DESTINO", "ERES MI INSPIRACIÓN", "ERES MI ALEGRÍA", "ERES MI RAZÓN DE SER", "ERES MI SUEÑO HECHO REALIDAD",
+            "❤️", "🌸", "🌟", "💖", "💐", "✨", "⭐", "💕", "❤️", "🌸", "🌟", "💖", "💐", "✨", "⭐", "<3"
+        ];
+
+        // Generar estrellas de fondo
+        function crearEstrellas(num) {
+            for (let i = 0; i < num; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                const size = Math.random() * 2 + 1;
+                star.style.width = size + 'px';
+                star.style.height = size + 'px';
+                star.style.top = Math.random() * 100 + 'vh';
+                star.style.left = Math.random() * 100 + 'vw';
+                star.style.opacity = Math.random() * 0.5 + 0.5;
+                document.body.appendChild(star);
+            }
+        }
+        crearEstrellas(120);
+
+        // Función para color aleatorio (excepto blanco)
+        function colorAleatorio() {
+            const r = Math.floor(Math.random() * 200);
+            const g = Math.floor(Math.random() * 200);
+            const b = Math.floor(Math.random() * 200);
+            return `rgb(${r},${g},${b})`;
+        }
+
+        // Generar lluvia de letras, palabras y emojis continuamente
+        function crearLetra() {
+            const textoBase = palabras[Math.floor(Math.random() * palabras.length)];
+            let contenido;
+            // 40% palabra completa, 60% letra o emoji
+            if (Math.random() < 0.4 || /[\u2190-\u2BFF\u2000-\u3300\uD83C-\uDBFF\uDC00-\uDFFF]/.test(textoBase)) {
+                contenido = textoBase;
+            } else {
+                const chars = textoBase.replace(/\s/g, '').split('');
+                contenido = chars[Math.floor(Math.random() * chars.length)];
+            }
+            const elemento = document.createElement('div');
+            elemento.className = 'falling';
+            if (/[\u2190-\u2BFF\u2000-\u3300\uD83C-\uDBFF\uDC00-\uDFFF]/.test(contenido)) {
+                elemento.classList.add('emoji');
+            }
+            elemento.textContent = contenido;
+            elemento.style.left = Math.random() * 98 + 'vw';
+            elemento.style.color = colorAleatorio();
+            // Animación más rápida
+            const duracion = 1 + Math.random() * 1.5; // 1 a 2.5 segundos
+            elemento.style.animationDuration = duracion + 's, 1.2s';
+            elemento.style.animationDelay = (Math.random() * 1) + 's, 0s';
+            document.body.appendChild(elemento);
+            elemento.addEventListener('animationend', () => elemento.remove());
+        }
+        setInterval(crearLetra, 40);
+    </script>
+</body>
+
+</html>
